@@ -82,6 +82,7 @@ class NetworkRoutingSolver:
         path_edges = []
         total_length = 0
         destNode = self.network.nodes[self.dest]
+        srcNode = self.network.nodes[self.source]
         foundSrc = False
         maxSearches = len(self.network.nodes)
         while maxSearches > 0:
@@ -91,13 +92,12 @@ class NetworkRoutingSolver:
                 break
             total_length += self.dist[destIndex]
             prevIndex = self.prev[destIndex]
+            prevNode = self.network.nodes[prevIndex]
             prevEdge = None
-            prevNode = None
-            for i in destNode.neighbors:
-                if i.dest.node_id == prevIndex:
+            for i in self.network.nodes[prevIndex].neighbors:
+                if i.dest.node_id == destNode.node_id:
                     prevEdge = i
-                    prevNode = i.dest
-                    break
+            total_length += prevEdge.length
 
             # Add to the edge to the path
             path_edges.append((prevEdge.src.loc, prevEdge.dest.loc, '{:.0f}'.format(prevEdge.length)))
