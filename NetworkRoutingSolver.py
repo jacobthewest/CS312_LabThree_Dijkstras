@@ -34,12 +34,16 @@ class ArrayQueue:
     #            implementation
     # RETURN: the node with the smallest distance; H
     def deleteMin(self, H):
-        minIndex = 0
-
+        minIndex = None
+        minIndexFound = False
         for i in range(len(H)):
             tempDist = H[i][1]
-            if tempDist < H[minIndex][1] and tempDist != -1:
+            if not minIndexFound and tempDist != -1:
                 minIndex = i
+                minIndexFound = True
+            elif minIndexFound:
+                if tempDist < H[minIndex][1] and tempDist != -1:
+                    minIndex = i
 
         key = H[minIndex][0]
         value = -1
@@ -69,6 +73,7 @@ class NetworkRoutingSolver:
         self.network = network
 
     def getShortestPath( self, destIndex ):
+        # TODO: Basically, I mixed up src and dest. I can fix that.
         self.dest = destIndex
         # TODO: RETURN THE SHORTEST PATH FOR destIndex
         #       INSTEAD OF THE DUMMY SET OF EDGES BELOW
@@ -76,41 +81,31 @@ class NetworkRoutingSolver:
         #       NEED TO USE
         path_edges = []
         total_length = 0
-        startNode = self.network.nodes[self.source]
-        minPathLength = min(self.dist[1:])
-        minPathIndex = 0
-        for item in self.dist:
-            if item == minPathLength:
-                break
-            minPathIndex += 1
-
-        destNode = self.network.nodes[minPathIndex]
-        # destNode.src = the next item in the list that pointed to it
-
+        destNode = self.network.nodes[self.dest]
         foundSrc = False
         maxSearches = len(self.network.nodes)
         while maxSearches > 0:
 
-            prevIndex = self.prev[minPathIndex]
-            prevEdge = None
-            prevNode = None
-            for item in destNode.neighbors:
-                if item.dest.node_id == prevIndex:
-                    prevEdge = item
-                    prevNode = item.dest
-
-            total_length += prevEdge.length
-            path_edges.append((prevEdge.src.loc, prevEdge.dest.loc, '{:.0f}'.format(prevEdge.length)))
-
-            if prevNode == startNode:
+            if self.prev[destIndex] == None:
                 foundSrc = True
                 break
+            total_length += self.dist[destIndex]
+            prevIndex = self.prev[destIndex]
+            prevEdge = None
+            prevNode = None
+            for i in destNode.neighbors:
+                if i.dest.node_id == prevIndex:
+                    prevEdge = i
+                    prevNode = i.dest
+                    break
 
-            maxSearches += 1
+            # Add to the edge to the path
+            path_edges.append((prevEdge.src.loc, prevEdge.dest.loc, '{:.0f}'.format(prevEdge.length)))
+
+            # Update values for next iteration
+            destIndex = prevNode.node_id
             destNode = prevNode
-            minPathIndex = prevNode.node_index
-
-
+            maxSearches -= 1
         if not foundSrc:
             return {'cost': "unreachable", 'path': []}
         else:
