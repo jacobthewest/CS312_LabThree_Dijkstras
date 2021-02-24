@@ -38,6 +38,11 @@ class NetworkRoutingSolver:
         self.dist = []
         self.prev = []
 
+        # if use_heap: # use heapQueue
+        #     # implement later
+        # else: # use arrayQueue
+        #     # implement first
+
         # Run dikstras, init the arrays, done.
 
         # TODO: RUN DIJKSTRA'S TO DETERMINE SHORTEST PATHS.
