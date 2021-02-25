@@ -14,7 +14,7 @@ class HeapQueue:
         pass
 
     # Make a list of items where the key is
-    # the minumum distance to the node and
+    # the minimum distance to the node and
     # the value is the node's id
     #
     # INPUT: None
@@ -51,7 +51,66 @@ class HeapQueue:
             H = self.bubbleDown(H)
         return returnMe, H
 
-    # Moves the a high value tuple down the min heap to
+    # Insert a new tuple into the min heap H at the correct position
+    #
+    # INPUT: H - the min heap H
+    #        nodeTuple - the node to insert into the min heap H
+    # RETURN: H - the min heap H with the correctly positioned min nodeTuple
+    def insert(self, H, nodeTuple):
+        if len(H) == 0: # If the heap is empty, then make the nodeTuple the root
+            H.append(nodeTuple)
+            self.map[nodeTuple[1]] = 0 # nodeTuple[1] = the node_id of the nodeTuple
+        else:
+            # add the node to the bottom level of the heap
+            H.append(nodeTuple)
+            childIndex = len(H) - 1
+            self.map[nodeTuple[1]] = childIndex # nodeTuple[1] = the node_id of the nodeTuple
+
+            # move the inserted node into the right place
+            H = self.bubbleUp(H)
+            return H
+
+    # Update the distance value for a nodeTuple in the min heap H
+    # and then correct the positioning of the min heap H
+    #
+    # INPUT: H - the min heap
+    #        oldTuple - the old tuple to replace
+    #        newTuple - the tuple to replace the old tuple
+    # RETURN: H - the updated min heap
+    def decreaseKey(self, H, oldTuple, newTuple):
+        posInH = self.map[oldTuple[1]] # oldTuple[1] gives us the node_id
+
+        # replace the old value with the new value
+        H[posInH] = newTuple
+
+        # Fix the min heap
+        # We only bubble up because we have DECREASED the key
+        # and this is a min heap, not a max heap
+        H = self.bubbleUp(H, posInH)
+        return H
+
+    # Moves the low value tuple up the min heap to
+    # correct an out of order min heap
+    #
+    # INPUT: H - The out of order min heap
+    #        childIndex - the index of the inserted node in the min heap
+    # RETURN: H - The corrected min heap
+    def bubbleUp(self, H, childIndex):
+        child = H[childIndex]
+        parentIndex = (childIndex - 1) // 2
+        parent = H[parentIndex]
+
+        while child[0] < parent[0]: # tuple[0] refers to the distance value
+            # change places in H
+            H = self.swap(parent, parentIndex, child, childIndex, H)
+
+            # Update the parent and the indices
+            childIndex = parentIndex
+            parentIndex = (childIndex - 1) // 2
+            parent = H[parentIndex]
+        return H
+
+    # Moves the high value tuple down the min heap to
     # correct an out of order min heap
     #
     # INPUT: H - The out of order min heap
