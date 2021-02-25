@@ -5,6 +5,145 @@ from CS312Graph import *
 import time
 import math
 
+class HeapQueue:
+
+    def __init__(self, networkNodes, dist):
+        self.networkNodes = networkNodes
+        self.dist = dist
+        self.map = {}
+        pass
+
+    # Make a list of items where the key is
+    # the minumum distance to the node and
+    # the value is the node's id
+    #
+    # INPUT: None
+    # RETURN: H - a priority queue using an array
+    #             implementation
+    def makeHeap(self):
+        H = None * len(self.networkNodes)
+        for node in self.networkNodes:
+            self.map[node.node_id] = node.node_id
+            key = self.dist[node.node_id]
+            value = node.node_id
+            H[node.node_id] = (key,value)
+        return H
+
+    # Returns the tuple with the smallest distance to it
+    # from the minHeap and then corrects the min heap.
+    #
+    # INPUT: H - The min heap
+    # RETURN: The tuple with the smallest distance to it
+    def deleteMin(self, H):
+        # Swap the first and last element in the min heap
+        temp = H[0]
+        H[0] = H[-1]
+        H[-1] = temp
+
+        # Pop off the min element
+        returnMe = H.pop(len(H) - 1)
+        self.map[returnMe[1]] = None # [1] refers to the node_id. Say the returned
+                                     # node no longer exists in the min heap.
+        self.map[H[0][1]] = 0 # Set the new root node's heap position to 0
+
+        # Correct the min heap because it is now weird
+        if len(H) > 0:
+            H = self.bubbleDown(H)
+        return returnMe, H
+
+    # Moves the a high value tuple down the min heap to
+    # correct an out of order min heap
+    #
+    # INPUT: H - The out of order min heap
+    # RETURN: H - The corrected min heap
+    def bubbleDown(self, H):
+        parentIndex = 0
+        done = False
+
+        while not done:
+            parent = H[parentIndex]
+            leftChild, leftChildIndex = self.getLeftChild(parent, H)
+            rightChild, rightChildIndex = self.getRightChild(parent, H)
+
+            if leftChild and rightChild:
+                if leftChild[0] < rightChild[0]: # Compare their distance values
+                    # Swap the parent and leftChild in the min heap H
+                    H, parentIndex = self.swapLeftChild(parent, parentIndex, leftChild, leftChildIndex, H)
+                    parentIndex = leftChildIndex
+                else: # RightChild has smaller distance
+                    # Swap the parent and the right child in the min heap H
+                    H = self.swapRightChild(parent, parentIndex, rightChild, rightChildIndex)
+                    parentIndex = rightChildIndex
+            elif leftChild and not rightChild:
+                # Swap the parent and the left child in the min heap H
+                H = self.swapLeftChild(parent, parentIndex, leftChild, leftChildIndex)
+                parentIndex = leftChildIndex
+            elif not leftChild and rightChild:
+                # Swap the parent and the right child in the min heap H
+                H = self.swapRightChild(parent, parentIndex, rightChild, rightChildIndex)
+                parentIndex = rightChildIndex
+            else:
+                done = True
+
+    # Swaps the parent and the left child in the min Heap H
+    #
+    # RETURN: The changed min heap H, and the leftChildIndex
+    # because the leftChildIndex in the corrected min heap H
+    # is now the parentIndex
+    def swapLeftChild(self, parent, parentIndex, leftChild, leftChildIndex, H):
+        H = self.swap(parent, parentIndex, leftChild, leftChildIndex, H)
+        return H, leftChildIndex
+
+    # Swaps the parent and the right child in the min Heap H
+    #
+    # RETURN: The changed min heap H, and the rightChildIndex
+    # because the rightChildIndex in the corrected min heap H
+    # is now the parentIndex
+    def swapRightChild(self, parent, parentIndex, rightChild, rightChildIndex, H):
+        H = self.swap(parent, parentIndex, rightChild, rightChildIndex, H)
+        return H, rightChildIndex
+
+    # Performs the actual swapping of elements and updates their min heap positions
+    # in the map
+    #
+    # RETURN: H, the corrected min heap H
+    def swap(self, parent, parentIndex, child, childIndex, H):
+        H[parentIndex] = child
+        self.map[child[1]] = parentIndex # child[1] gives us the node_id from the tuple
+        H[childIndex] = parent
+        self.map[parent[1]] = childIndex # parent[1] gives us the node_id from the tuple
+        return H
+
+
+    # Get the left child of the parent tuple in the mean heap
+    #
+    # INPUT: parent - the parent tuple in the min heap
+    #        H - the min heap
+    # RETURN: the leftChild tuple in the heap, or None if it doesn't exist
+    def getLeftChild(self, parent, H):
+        try:
+            parentNodeId = parent[1] # [0] = distValue [1] = node_id
+            leftChildIndexInH = (2 * self.map[parentNodeId]) + 1
+            leftChildTuple = H[leftChildIndexInH]
+            return leftChildTuple, leftChildIndexInH
+        except:
+            return None
+
+    # Get the right child of the parent tuple in the mean heap
+    #
+    # INPUT: parent - the parent tuple in the min heap
+    #        H - the min heap
+    # RETURN: the rightChild tuple in the heap, or None if it doesn't exist
+    def getRightChild(self, parent, H):
+        try:
+            parentNodeId = parent[1] # [0] = distValue [1] = node_id
+            rightChildIndexInH = (2 * self.map[parentNodeId]) + 2
+            rightChildTuple = H[rightChildIndexInH]
+            return rightChildTuple, rightChildIndexInH
+        except:
+            return None
+
+
 class ArrayQueue:
 
     def __init__(self, networkNodes, dist):
@@ -16,7 +155,7 @@ class ArrayQueue:
     # the node in string form and the value is the
     # minimum distance to the node.
     #
-    # INPUT: srcIndex - the index of the src node
+    # INPUT: None
     # RETURN: H - a priority queue using an array
     #             implementation
     def makeQueue(self):
