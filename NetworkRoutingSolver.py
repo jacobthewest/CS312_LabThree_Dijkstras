@@ -285,7 +285,6 @@ class NetworkRoutingSolver:
         self.network = network
 
     def getShortestPath( self, destIndex ):
-        # TODO: Basically, I mixed up src and dest. I can fix that.
         self.dest = destIndex
         # TODO: RETURN THE SHORTEST PATH FOR destIndex
         #       INSTEAD OF THE DUMMY SET OF EDGES BELOW
@@ -301,7 +300,7 @@ class NetworkRoutingSolver:
             if self.prev[destIndex] == None:
                 foundSrc = True
                 break
-            total_length += self.dist[destIndex]
+
             prevIndex = self.prev[destIndex]
             prevNode = self.network.nodes[prevIndex]
             prevEdge = None
