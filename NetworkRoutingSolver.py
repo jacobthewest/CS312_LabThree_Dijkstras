@@ -82,7 +82,6 @@ class NetworkRoutingSolver:
         path_edges = []
         total_length = 0
         destNode = self.network.nodes[self.dest]
-        srcNode = self.network.nodes[self.source]
         foundSrc = False
         maxSearches = len(self.network.nodes)
         while maxSearches > 0:
