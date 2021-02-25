@@ -69,21 +69,18 @@ class HeapQueue:
                 if leftChild[0] < rightChild[0]: # Compare their distance values
                     # Swap the parent and leftChild in the min heap H
                     H, parentIndex = self.swapLeftChild(parent, parentIndex, leftChild, leftChildIndex, H)
-                    parentIndex = leftChildIndex
                 else: # RightChild has smaller distance
                     # Swap the parent and the right child in the min heap H
-                    H = self.swapRightChild(parent, parentIndex, rightChild, rightChildIndex)
-                    parentIndex = rightChildIndex
+                    H, parentIndex = self.swapRightChild(parent, parentIndex, rightChild, rightChildIndex)
             elif leftChild and not rightChild:
                 # Swap the parent and the left child in the min heap H
-                H = self.swapLeftChild(parent, parentIndex, leftChild, leftChildIndex)
-                parentIndex = leftChildIndex
+                H, parentIndex = self.swapLeftChild(parent, parentIndex, leftChild, leftChildIndex)
             elif not leftChild and rightChild:
                 # Swap the parent and the right child in the min heap H
-                H = self.swapRightChild(parent, parentIndex, rightChild, rightChildIndex)
-                parentIndex = rightChildIndex
+                H, parentIndex = self.swapRightChild(parent, parentIndex, rightChild, rightChildIndex)
             else:
                 done = True
+        return H
 
     # Swaps the parent and the left child in the min Heap H
     #
