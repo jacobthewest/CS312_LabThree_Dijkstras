@@ -21,7 +21,7 @@ class HeapQueue:
     # RETURN: H - a priority queue using an array
     #             implementation
     def makeHeap(self):
-        H = None * len(self.networkNodes)
+        H = [None] * len(self.networkNodes)
         for node in self.networkNodes:
             self.map[node.node_id] = node.node_id
             key = self.dist[node.node_id]
@@ -33,7 +33,7 @@ class HeapQueue:
     # from the minHeap and then corrects the min heap.
     #
     # INPUT: H - The min heap
-    # RETURN: The tuple with the smallest distance to it
+    # RETURN: The node with the smallest distance to it
     def deleteMin(self, H):
         # Swap the first and last element in the min heap
         temp = H[0]
@@ -49,6 +49,9 @@ class HeapQueue:
         # Correct the min heap because it is now weird
         if len(H) > 0:
             H = self.bubbleDown(H)
+
+        # returnMe is a tuple, find its node pair is self.networkNodes
+        returnMe = self.networkNodes[returnMe[1]] # returnMe[1] because that is the node_id
         return returnMe, H
 
     # Insert a new tuple into the min heap H at the correct position
@@ -74,11 +77,16 @@ class HeapQueue:
     # and then correct the positioning of the min heap H
     #
     # INPUT: H - the min heap
-    #        oldTuple - the old tuple to replace
-    #        newTuple - the tuple to replace the old tuple
+    #        node_id - the old tuple to replace
+    #        newDistance - the newDistance to the node.
+    #                      also the key of the tuple
     # RETURN: H - the updated min heap
-    def decreaseKey(self, H, oldTuple, newTuple):
-        posInH = self.map[oldTuple[1]] # oldTuple[1] gives us the node_id
+    def decreaseKey(self, H, node_id, newDistance):
+        key = newDistance
+        value = node_id
+        newTuple = (key, value)
+
+        posInH = self.map[node_id]
 
         # replace the old value with the new value
         H[posInH] = newTuple
@@ -107,7 +115,10 @@ class HeapQueue:
             # Update the parent and the indices
             childIndex = parentIndex
             parentIndex = (childIndex - 1) // 2
-            parent = H[parentIndex]
+            if(parentIndex < 0):
+                parent = (float("-inf"), "This is the root node")
+            else:
+                parent = H[parentIndex]
         return H
 
     # Moves the high value tuple down the min heap to
@@ -128,15 +139,17 @@ class HeapQueue:
                 if leftChild[0] < rightChild[0]: # Compare their distance values
                     # Swap the parent and leftChild in the min heap H
                     H, parentIndex = self.swapLeftChild(parent, parentIndex, leftChild, leftChildIndex, H)
-                else: # RightChild has smaller distance
+                elif leftChild[0] > rightChild[0]: # RightChild has smaller distance
                     # Swap the parent and the right child in the min heap H
-                    H, parentIndex = self.swapRightChild(parent, parentIndex, rightChild, rightChildIndex)
+                    H, parentIndex = self.swapRightChild(parent, parentIndex, rightChild, rightChildIndex, H)
+                else: # They are the same size.
+                    done = True
             elif leftChild and not rightChild:
                 # Swap the parent and the left child in the min heap H
-                H, parentIndex = self.swapLeftChild(parent, parentIndex, leftChild, leftChildIndex)
+                H, parentIndex = self.swapLeftChild(parent, parentIndex, leftChild, leftChildIndex, H)
             elif not leftChild and rightChild:
                 # Swap the parent and the right child in the min heap H
-                H, parentIndex = self.swapRightChild(parent, parentIndex, rightChild, rightChildIndex)
+                H, parentIndex = self.swapRightChild(parent, parentIndex, rightChild, rightChildIndex, H)
             else:
                 done = True
         return H
@@ -180,10 +193,12 @@ class HeapQueue:
         try:
             parentNodeId = parent[1] # [0] = distValue [1] = node_id
             leftChildIndexInH = (2 * self.map[parentNodeId]) + 1
+            if leftChildIndexInH < 0 or leftChildIndexInH > len(H) - 1:
+                return None, None
             leftChildTuple = H[leftChildIndexInH]
             return leftChildTuple, leftChildIndexInH
         except:
-            return None
+            return None, None
 
     # Get the right child of the parent tuple in the mean heap
     #
@@ -194,10 +209,12 @@ class HeapQueue:
         try:
             parentNodeId = parent[1] # [0] = distValue [1] = node_id
             rightChildIndexInH = (2 * self.map[parentNodeId]) + 2
+            if rightChildIndexInH < 0 or rightChildIndexInH > len(H) - 1:
+                return None, None
             rightChildTuple = H[rightChildIndexInH]
             return rightChildTuple, rightChildIndexInH
         except:
-            return None
+            return None, None
 
 
 class ArrayQueue:
@@ -318,16 +335,28 @@ class NetworkRoutingSolver:
         self.source = srcIndex
         t1 = time.time()
 
+        # Initialize all node distances to infinity.
+        # Set src node distance to zero
+        self.dist = [self.infinity] * len(self.network.nodes)
+        self.prev = [None] * len(self.network.nodes)
+        self.dist[srcIndex] = 0
+
         if use_heap: # use heapQueue
-            print("Implement the heapQueue later.")
+            minHeapQueue = HeapQueue(self.network.nodes, self.dist)
+            H = minHeapQueue.makeHeap()
+            minsDeleted = 0
+            while minsDeleted < len(H): # While H is not empty
+                u, H = minHeapQueue.deleteMin(H)
+                minsDeleted += 1
+                for neighborEdge in u.neighbors:
+                    neighborNode = neighborEdge.dest;
+                    newDistance = self.dist[u.node_id] + neighborEdge.length
+                    if self.dist[neighborNode.node_id] > newDistance:
+                        self.dist[neighborNode.node_id] = newDistance
+                        self.prev[neighborNode.node_id] = u.node_id
+                        H = minHeapQueue.decreaseKey(H, neighborNode.node_id, newDistance)
+
         else: # use arrayQueue
-
-            # Initialize all node distances to infinity.
-            # Set src node distance to zero
-            self.dist = [self.infinity] * len(self.network.nodes)
-            self.prev = [None] * len(self.network.nodes)
-            self.dist[srcIndex] = 0
-
             arrayQueue = ArrayQueue(self.network.nodes, self.dist)
             H = arrayQueue.makeQueue()
             minsDeleted = 0
