@@ -241,6 +241,7 @@ class Proj3GUI( QMainWindow ):
 			for start,end,lbl in heap_path['path']:
 				self.view.addEdge(startPt=start, endPt=end, label=lbl, edgeColor=(128,128,255))
 			self.heapTime.setText('{:.6f}s'.format(heap_time))
+			print("Heap Time: " + str(heap_time))
 			if not array_path:
 				self.arrayTime.setText('')
 				self.speedup.setText('')   
@@ -249,6 +250,8 @@ class Proj3GUI( QMainWindow ):
 			for start,end,lbl in array_path['path']:
 				self.view.addEdge(startPt=start, endPt=end, label=lbl, edgeColor=(128,128,255))
 			self.arrayTime.setText('{:.6f}s'.format(array_time))
+			print("Array Time: " + str(array_time))
+			print("")
 			if not heap_path:
 				self.heapTime.setText('')
 				self.speedup.setText('')

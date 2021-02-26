@@ -20,11 +20,17 @@ class HeapQueue:
     # INPUT: None
     # RETURN: H - a priority queue using an array
     #             implementation
+    # ---TIME COMPLEXITY---
+    # Time complexity---: O(log(V))
+    # Discussion---: The insert operation is called V times.
+    # the insert operation on a min heap queue is O(log(V)).
+    # Even though we are calling the insert operation V times,
+    # the time complexity will be just O(log(V)) because as V
+    # tends towards infinity, the min heap will grow bigger and
+    # we won't have to inspect the entire heap on each insertion.
     def makeHeap(self):
-        # H = [None] * len(self.networkNodes)
         H = []
         for node in self.networkNodes:
-            # self.map[node.node_id] = node.node_id
             key = self.dist[node.node_id]
             value = node.node_id
             nodeTuple = (key,value)
@@ -36,6 +42,18 @@ class HeapQueue:
     #
     # INPUT: H - The min heap
     # RETURN: The node with the smallest distance to it
+    # ---TIME COMPLEXITY---
+    # Time complexity---: O(log(V))
+    # Discussion---: To return the minimum value off the min
+    # heap is just O(1) time because the minimum value is
+    # always the root value. To return the min value, we
+    # swap the min value and the end value of the min heap.
+    # Then we pop off the last index of the min heap (which
+    # is now the min value). This is O(1) time. Then we have to trickle down
+    # the higher out-of-order value back into a good place
+    # in the tree. This trickling down of the value is O(log(V))
+    # time. O(log(V)) dominates the O(1) time, therefore the time
+    # complexity of the deleteMin() function is O(log(V)).
     def deleteMin(self, H):
         # Swap the first and last element in the min heap
         temp = H[0]
@@ -61,6 +79,14 @@ class HeapQueue:
     # INPUT: H - the min heap H
     #        nodeTuple - the node to insert into the min heap H
     # RETURN: H - the min heap H with the correctly positioned min nodeTuple
+    # ---TIME COMPLEXITY---
+    # Time complexity---: O(log(V))
+    # Discussion---: We insert by adding the node to the end of the heap array.
+    # This is O(1) time. Then we have to make sure the node is in the correct place.
+    # More often than not, the node is too low in the tree and needs to be bubbled
+    # up the min heap. Bubbling the node up the tree takes O(log(V)) time. Because
+    # O(log(V)) dominates O(1) time, the total time complexity of the insert operation
+    # is O(log(V)) time.
     def insert(self, H, nodeTuple):
         if len(H) == 0: # If the heap is empty, then make the nodeTuple the root
             H.append(nodeTuple)
@@ -83,6 +109,15 @@ class HeapQueue:
     #        newDistance - the newDistance to the node.
     #                      also the key of the tuple
     # RETURN: H - the updated min heap
+    # Time complexity---: O(log(V))
+    # Discussion---: The decreaseKey() function is O(log(V)) time because
+    # once we change the key value, we need to put the key in the correct
+    # place. Because we DECREASED the value of the key, and we are
+    # working with a min heap, we have only to worry about bubbling the
+    # value up the min heap. This bubbling up function takes O(log(V))
+    # time. Changing the value of the key is O(1) time. Because
+    # O(log(V)) time dominates O(1) time, the time complexity
+    # of the function is O(log(V)).
     def decreaseKey(self, H, node_id, newDistance):
         key = newDistance
         value = node_id
@@ -106,6 +141,12 @@ class HeapQueue:
     # INPUT: H - The out of order min heap
     #        childIndex - the index of the nodeTuple to bobble up
     # RETURN: H - The corrected min heap
+    # Time complexity---: O(log(V))
+    # Discussion---: The bubbleUp() function is O(log(V)) time
+    # because it only requires us to check the nodes above
+    # the current node, we never have to look out for the nodes
+    # left of or below the current node. Therefore, the time
+    # complexity of this function is O(log(V)).
     def bubbleUp(self, H, childIndex=None):
         if childIndex == None:
             childIndex = len(H) - 1 # It will always be the last index
@@ -131,6 +172,12 @@ class HeapQueue:
     #
     # INPUT: H - The out of order min heap
     # RETURN: H - The corrected min heap
+    # Time complexity---: O(log(V))
+    # Discussion---: The bubbleDown() function is O(log(V)) time
+    # because it only requires us to check the nodes below
+    # the current node, we never have to look out for the nodes
+    # above or on the other side of the min heap. Therefore, the time
+    # complexity of this function is O(log(V)).
     def bubbleDown(self, H):
         parentIndex = 0
         done = False
@@ -164,6 +211,10 @@ class HeapQueue:
     # RETURN: The changed min heap H, and the leftChildIndex
     # because the leftChildIndex in the corrected min heap H
     # is now the parentIndex
+    # Time complexity---: O(1)
+    # Discussion---: The function is only O(1) time because
+    # we are performing setting of nodes and retrieval of
+    # nodes with known indices.
     def swapLeftChild(self, parent, parentIndex, leftChild, leftChildIndex, H):
         H = self.swap(parent, parentIndex, leftChild, leftChildIndex, H)
         return H, leftChildIndex
@@ -173,6 +224,10 @@ class HeapQueue:
     # RETURN: The changed min heap H, and the rightChildIndex
     # because the rightChildIndex in the corrected min heap H
     # is now the parentIndex
+    # Time complexity---: O(1)
+    # Discussion---: The function is only O(1) time because
+    # we are performing setting of nodes and retrieval of
+    # nodes with known indices.
     def swapRightChild(self, parent, parentIndex, rightChild, rightChildIndex, H):
         H = self.swap(parent, parentIndex, rightChild, rightChildIndex, H)
         return H, rightChildIndex
@@ -181,6 +236,10 @@ class HeapQueue:
     # in the map
     #
     # RETURN: H, the corrected min heap H
+    # Time complexity---: O(1)
+    # Discussion---: The function is only O(1) time because
+    # we are performing setting of nodes and retrieval of
+    # nodes with known indices.
     def swap(self, parent, parentIndex, child, childIndex, H):
         H[parentIndex] = child
         self.map[child[1]] = parentIndex # child[1] gives us the node_id from the tuple
@@ -194,6 +253,10 @@ class HeapQueue:
     # INPUT: parent - the parent tuple in the min heap
     #        H - the min heap
     # RETURN: the leftChild tuple in the heap, or None if it doesn't exist
+    # Time complexity---: O(1)
+    # Discussion---: The function is only O(1) time because
+    # we are performing the retrieval of
+    # nodes with known indices.
     def getLeftChild(self, parent, H):
         try:
             parentNodeId = parent[1] # [0] = distValue [1] = node_id
@@ -210,6 +273,10 @@ class HeapQueue:
     # INPUT: parent - the parent tuple in the min heap
     #        H - the min heap
     # RETURN: the rightChild tuple in the heap, or None if it doesn't exist
+    # Time complexity---: O(1)
+    # Discussion---: The function is only O(1) time because
+    # we are performing the retrieval of
+    # nodes with known indices.
     def getRightChild(self, parent, H):
         try:
             parentNodeId = parent[1] # [0] = distValue [1] = node_id
@@ -236,6 +303,12 @@ class ArrayQueue:
     # INPUT: None
     # RETURN: H - a priority queue using an array
     #             implementation
+    # Time complexity---: O(V)
+    # Discussion---: The function is O(V) because
+    # we are creating a list of nodes and inserting
+    # each node into its respective location based
+    # on node_id. We need to place every node in its
+    # own index. Therefore, the time complexity is O(V).
     def makeQueue(self):
         H = [None] * len(self.networkNodes)
         for node in self.networkNodes:
@@ -250,6 +323,12 @@ class ArrayQueue:
     # INPUT: H - a priority queue using an array
     #            implementation
     # RETURN: the node with the smallest distance; H
+    # Time complexity---: O(V)
+    # Discussion---: The function is O(V) because
+    # we are searching the entire list and seeing
+    # if the value is lower than the smallest value
+    # that we have seen. Therefore, the time complexity
+    # is O(V).
     def deleteMin(self, H):
         minIndex = None
         minIndexFound = False
@@ -274,6 +353,12 @@ class ArrayQueue:
     #        neighborIndex - the location of the node distance to update
     #        newDistance - the new distance, duh.
     # RETURN: H - the array priority queue
+    # Time complexity---: O(1)
+    # Discussion---: The function is O(1) because
+    # we are retrieving a node based off of a known
+    # index. Then we are changing that value.
+    # These are constant time operations. Therefore,
+    # the complexity of this function is O(1).
     def decreaseKey(self, H, neighborIndex, newDistance):
         key = H[neighborIndex][0]
         newValue = newDistance
@@ -289,6 +374,16 @@ class NetworkRoutingSolver:
         assert( type(network) == CS312Graph )
         self.network = network
 
+    # Time complexity---: O(n^3)
+    # Discussion---: This function is O(n^3) because
+    # we are checking every node, and for every node
+    # we are checking each of its three neighbors
+    # to see what the shortest path may be. We are
+    # checking each of the three neighbors inside
+    # of a while loop that iterates for every node.
+    # Because of the nested nature of this three
+    # neighbor check, the worst case time complexity
+    # is O(n^3).
     def getShortestPath( self, destIndex ):
         self.dest = destIndex
         # TODO: RETURN THE SHORTEST PATH FOR destIndex
@@ -326,15 +421,18 @@ class NetworkRoutingSolver:
         else:
             return {'cost':total_length, 'path':path_edges}
 
-        # edges_left = 3
-        # while edges_left > 0:
-        #     edge = node.neighbors[2]
-        #     path_edges.append( (edge.src.loc, edge.dest.loc, '{:.0f}'.format(edge.length)) )
-        #     total_length += edge.length
-        #     node = edge.dest
-        #     edges_left -= 1
-        # return {'cost':total_length, 'path':path_edges}
 
+    # Time complexity---:
+    # Discussion---: O(E*log(V)) and O(V^2 + V*E)
+    # min heap priority queue: The operation is executed
+    # O(V + E) times. The decreaseKey(), insert(), and deleteMin()
+    # operations all take O(log(V)) time. Therefore, the time
+    # complexity is O(V + E) * O(log(V)) => O(E*log(V))
+    #
+    # array priority queue: The operation is executed O(V + E)
+    # times. deleteMin() is the most time heavy operation at
+    # O(V) time. Therefore, the time complexity is
+    # O(V + E) * O(V) => O(V^2 + V*E)
     def computeShortestPaths( self, srcIndex, use_heap=False ):
         self.source = srcIndex
         t1 = time.time()
