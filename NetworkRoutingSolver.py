@@ -21,12 +21,14 @@ class HeapQueue:
     # RETURN: H - a priority queue using an array
     #             implementation
     def makeHeap(self):
-        H = [None] * len(self.networkNodes)
+        # H = [None] * len(self.networkNodes)
+        H = []
         for node in self.networkNodes:
-            self.map[node.node_id] = node.node_id
+            # self.map[node.node_id] = node.node_id
             key = self.dist[node.node_id]
             value = node.node_id
-            H[node.node_id] = (key,value)
+            nodeTuple = (key,value)
+            H = self.insert(H, nodeTuple)
         return H
 
     # Returns the tuple with the smallest distance to it
@@ -44,10 +46,10 @@ class HeapQueue:
         returnMe = H.pop(len(H) - 1)
         self.map[returnMe[1]] = None # [1] refers to the node_id. Say the returned
                                      # node no longer exists in the min heap.
-        self.map[H[0][1]] = 0 # Set the new root node's heap position to 0
-
-        # Correct the min heap because it is now weird
         if len(H) > 0:
+            self.map[H[0][1]] = 0 # Set the new root node's heap position to 0
+
+            # Correct the min heap because it is now weird
             H = self.bubbleDown(H)
 
         # returnMe is a tuple, find its node pair is self.networkNodes
@@ -71,7 +73,7 @@ class HeapQueue:
 
             # move the inserted node into the right place
             H = self.bubbleUp(H)
-            return H
+        return H
 
     # Update the distance value for a nodeTuple in the min heap H
     # and then correct the positioning of the min heap H
@@ -89,21 +91,24 @@ class HeapQueue:
         posInH = self.map[node_id]
 
         # replace the old value with the new value
-        H[posInH] = newTuple
+        if len(H) != 0:
+            H[posInH] = newTuple
 
-        # Fix the min heap
-        # We only bubble up because we have DECREASED the key
-        # and this is a min heap, not a max heap
-        H = self.bubbleUp(H, posInH)
+            # Fix the min heap
+            # We only bubble up because we have DECREASED the key
+            # and this is a min heap, not a max heap
+            H = self.bubbleUp(H, posInH)
         return H
 
     # Moves the low value tuple up the min heap to
     # correct an out of order min heap
     #
     # INPUT: H - The out of order min heap
-    #        childIndex - the index of the inserted node in the min heap
+    #        childIndex - the index of the nodeTuple to bobble up
     # RETURN: H - The corrected min heap
-    def bubbleUp(self, H, childIndex):
+    def bubbleUp(self, H, childIndex=None):
+        if childIndex == None:
+            childIndex = len(H) - 1 # It will always be the last index
         child = H[childIndex]
         parentIndex = (childIndex - 1) // 2
         parent = H[parentIndex]
@@ -344,7 +349,8 @@ class NetworkRoutingSolver:
             minHeapQueue = HeapQueue(self.network.nodes, self.dist)
             H = minHeapQueue.makeHeap()
             minsDeleted = 0
-            while minsDeleted < len(H): # While H is not empty
+            originalLengthOfH = len(H)
+            while minsDeleted < originalLengthOfH: # While H is not empty
                 u, H = minHeapQueue.deleteMin(H)
                 minsDeleted += 1
                 for neighborEdge in u.neighbors:
@@ -359,7 +365,8 @@ class NetworkRoutingSolver:
             arrayQueue = ArrayQueue(self.network.nodes, self.dist)
             H = arrayQueue.makeQueue()
             minsDeleted = 0
-            while minsDeleted < len(H): # While H is not empty
+            originalLengthOfH = len(H)
+            while minsDeleted < originalLengthOfH: # While H is not empty
                 u, H = arrayQueue.deleteMin(H)
                 minsDeleted += 1
                 for neighborEdge in u.neighbors:
